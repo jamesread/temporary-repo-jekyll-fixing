@@ -1,0 +1,37 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Checkout the latest code'
+      uses: actions/checkout@v2      
+      
+    - name: 'Inject slug/short variables'
+      uses: rlespinasse/github-slug-action@v2.x
+        
+    - name: 'Update site with run number'
+      run: |
+        sed -i "s/#BUILD_ID#/${{ env.GITHUB_REF_SLUG_URL }}-${{ github.run_id }}/g" _includes/nav.html
+        
+    - name: 'Update site with SHA'
+      run: |
+        sed -i "s/#COMMIT_ID#/${{ env.GITHUB_SHA_SHORT }}/g" _includes/nav.html
+        
+    # Use GitHub Actions' cache to shorten build times and decrease load on servers
+    - name: 'Cache gems'
+      uses: actions/cache@v2
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile') }}
+        restore-keys: |
+          ${{ runner.os }}-gems-
+          
+    - name: 'Build and publish Jekyll to GitHub Pages'
+      uses: helaili/jekyll-action@v2
+      with: 
+       token: ${{ secrets.GITHUB_TOKEN }}
