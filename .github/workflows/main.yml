@@ -32,6 +32,6 @@ jobs:
           ${{ runner.os }}-gems-
           
     - name: 'Build and publish Jekyll to GitHub Pages'
-      uses: helaili/jekyll-action@v2.4.0
+      uses: helaili/jekyll-action@v2.4
       with: 
        token: ${{ secrets.GITHUB_TOKEN }}
